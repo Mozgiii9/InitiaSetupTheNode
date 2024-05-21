@@ -2,6 +2,8 @@
 
 ## Дата создания гайда: 15.05.2024
 
+## Дата обновления гайда: 21.05.2024
+
 ## Обзор проекта:
 
 **Initia — это совместимая сеть, в которой используется MoveVM, первая интеграция языка интеллектуальных контрактов Move.**
@@ -10,7 +12,7 @@
 
 **- Инвесторы: Binance Labs, Delphi Digital и другие**
 
-Вчера ночью, Initia анонсировали запуск вознаграждаемого тестнета, который продлится 8 недель и позволит нам изучить экосистему Initia, а также получить вознаграждения. У проекта интересная кампания, но нас интересует именно установка ноды, поскольку за нее нам тоже обещают вознаграждения. Помимо установки ноды, нодраннерам также необходимо выполнять задания для фарма XP. Более подробно можете ознакомиться [здесь](https://initia-xyz.notion.site/The-Initiation-Validator-Tasks-6d88ab0034644473907435662f9285b3?pvs=4).
+Initia анонсировали запуск вознаграждаемого тестнета, который продлится 8 недель и позволит нам изучить экосистему Initia, а также получить вознаграждения. У проекта интересная кампания, но нас интересует именно установка ноды, поскольку за нее нам тоже обещают вознаграждения. Помимо установки ноды, нодраннерам также необходимо выполнять задания для фарма XP. Более подробно можете ознакомиться [здесь](https://initia-xyz.notion.site/The-Initiation-Validator-Tasks-6d88ab0034644473907435662f9285b3?pvs=4).
 
 **Информационные ресурсы проекта:**
 
@@ -52,7 +54,7 @@ sudo apt install curl git wget htop tmux build-essential jq make lz4 gcc unzip -
 source <(curl -s https://itrocket.net/api/testnet/initia/autoinstall/)
 ```
 
-**Если пойдут логи(Height'ы) это значит, что нода успешно установлена**
+**В конце скрипта начнется установка Snapshot'а, это довольно долгий процесс, который может занять до нескольких часов. Если пойдут логи(Height'ы) это значит, что нода успешно установлена**
 
 **4. Проверим синхронизацию ноды:**
 
@@ -61,6 +63,12 @@ initiad status 2>&1 | jq
 ```
 
 **Если статус "catching_up" равен "true", то это значит, что нода еще не синхронизирована. Ждем, когда "catching_up" станет "false" и только потом переходим к следущему шагу.**
+
+**Синхронизация в Initia так же занимает продолжительное время. Вы можете отследить время окончания синхронизации при помощи команды ниже:**
+
+```
+. <(wget -qO- https://raw.githubusercontent.com/SecorD0/Initia/main/node_info.sh) 2>/dev/null
+```
 
 **5. Создадим кошелек:**
 
@@ -107,7 +115,7 @@ initiad q bank balances $WALLET_ADDRESS
 **8. Создадим валидатора:**
 
 ```
-initiad tx staking create-validator \
+initiad tx mstaking create-validator \
 --amount 1000000uinit \
 --from $WALLET \
 --commission-rate 0.1 \
@@ -115,16 +123,51 @@ initiad tx staking create-validator \
 --commission-max-change-rate 0.01 \
 --min-self-delegation 1 \
 --pubkey $(initiad tendermint show-validator) \
---moniker "Имя Вашей ноды" \
+--moniker "ИМЯ_ВАШЕЙ_НОДЫ" \
 --identity "" \
---website "" \
---details "I love blockchain" \
+--website "ССЫЛКА_НА_ВАШ_ТВИТТЕР_ИЛИ_ГИТХАБ" \
+--details "" \
 --chain-id initiation-1 \
 --gas auto --fees 80000uinit \
--y
 ```
 
-**Замените в поле moniker "Имя вашей ноды" на имя Вашей ноды**
+**9. Теперь переходим к заполнению формы. Форма актуальна до 24 мая, после чего она будет закрыта. [Ссылка](https://forms.gle/HqLFePaka2NLmzY98) на форму.**
+
+![изображение](https://github.com/Mozgiii9/InitiaSetupTheNode/assets/74683169/d0b29fcd-ccab-43cc-b0dc-785c735bb748)
+
+**Узнать адрес валидатора(initvaloper...) можно через команду:**
+
+```
+initiad keys show $YOUR_WALLET_NAME --bech val -a
+```
+
+**Замените "YOUR_WALLET_NAME" на имя Вашего кошелька**
+
+**Узнать RPC можно следующим образом:**
+
+```
+RPC="http://$(wget -qO- eth0.me)$(grep -A 3 "\[rpc\]" $HOME/.initia/config/config.toml | egrep -o ":[0-9]+")" && echo $RPC
+```
+
+```
+curl $RPC/status
+```
+
+Если в ответ Вы получили "Connection refused", то необходимо сделать следующее:
+
+```
+sed -i '/\[rpc\]/,/\[/{s/^laddr = "tcp:\/\/127\.0\.0\.1:/laddr = "tcp:\/\/0.0.0.0:/}' $HOME/.initia/config/config.toml
+```
+
+```
+sudo systemctl restart initiad
+```
+
+```
+echo $RPC
+```
+
+**Вы можете вставить это в качестве URL адреса в браузере и убедиться, что все работает. Занесите полученный результат в значение RPC в форме.**
 
 **Список полезных команд:**
 
