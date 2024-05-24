@@ -1,8 +1,9 @@
-## Oracle Setup
+## Установка Oracle
 
-Step 1: Clone the repository and build binaries
+**1. Загрузка репозитория и установка binary файлов:**
 
-# Clone repository
+# Клонирование репозитория:
+
 ``cd $HOME``
 
 ``rm -rf slinky``
@@ -13,16 +14,17 @@ Step 1: Clone the repository and build binaries
 
 ``git checkout v0.4.3``
 
-# Build binaries
+# Установка бинарников:
+
 ``make install``
 
-# Move binary to local bin
 ``mv build/slinky /usr/local/bin/
 rm -rf build``
 
-# Step 2: Run oracle
-# Create systemd service
+# 2. Запуск Oracle:
+# Создание системного файла:
 
+```
 sudo tee /etc/systemd/system/slinky.service > /dev/null <<EOF
 
 [Unit]
@@ -49,24 +51,36 @@ LimitNOFILE=65535
 WantedBy=multi-user.target
 
 EOF
+```
 
-# Enable and start service
+# Запуск сервиса:
 
 ``sudo systemctl daemon-reload
 sudo systemctl enable slinky.service
 sudo systemctl start slinky.service``
 
-# Step 3: Validating Prices
-Upon launching the oracle, you should observe successful price retrieval from the provider sources. Additionally, you have the option to execute the test client script available in the Slinky repository by using the command:
+# 3. Валидация цен:
 
 ``make run-oracle-client``
 
-# Step 4: Enable Oracle Vote Extension
-In order to utilize the Slinky oracle data in the Initia node, the Oracle setting should be enabled in the config/app.toml file.
+# 4: Подключение Oracle Vote Extension:
+
+```
+cd
+```
+
+```
+cd .initia/config
+```
+
+```
+sudo nano app.toml
+```
+
+**Меняете значения таким же образом, как на скрине ниже:**
 
 ![sc](https://github.com/freshe4qa/initia/assets/85982863/d15f4de9-efc9-4903-bf3e-b7e4e8331ced)
 
-# Step 5: Check the systemd logs
-To check service logs use command below:
+# 5. Проверка системных логов:
 
 ``journalctl -fu slinky --no-hostname``
